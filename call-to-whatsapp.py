@@ -210,6 +210,12 @@ def message_status():
     print ("** message_status **")
     data = request.get_json()
     pprint(data)
+    pprint(data['error']['code'])
+    if data['error']['code'] == 1340:     # Sent Outside Allowed Window
+        wa_optin = "https://wa.me/" + from_whatsapp + "&text=OPTIN"
+        sms_text = "WhatsAppにメッセージを送ってよろしければ、こちらのリンクをクリックしてください。 " + wa_optin
+        response_SMS = client_sms.send_message({'from': 'Nexmo', 'to': session['from'], 'type':'unicode','text': sms_text},)
+        print(response_SMS)
     return ("message_status", 200)
 
 @app.route('/webhooks/inbound-sms', methods=['POST'])
