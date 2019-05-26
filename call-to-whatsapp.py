@@ -56,7 +56,7 @@ client_sms = nexmo.Client(key=api_key, secret=api_secret)
 client = nexmo.Client(application_id=application_id, private_key=keyfile)
 
 @app.route('/answer',methods=['GET', 'POST'])
-def japanivr():
+def answer():
 
     arg_to = request.args['to']
     arg_from = request.args['from']
@@ -81,9 +81,7 @@ def japanivr():
             }]
     js=json.dumps(ncco)
     resp=Response(js, status=200, mimetype='application/json')
-    print(resp.data)
     return resp
-
 
 @app.route('/dtmfresponse',methods=['GET', 'POST'])
 def dtmfresponse():
@@ -92,7 +90,6 @@ def dtmfresponse():
     date =currentDT.strftime("%Y-%m-%d %H:%M:%S")
 
     webhookContent = request.json
-    print(webhookContent)
     try:
         result = webhookContent['dtmf']
     except:
@@ -111,13 +108,13 @@ def dtmfresponse():
             ]
         js = json.dumps(ncco)
         resp = Response(js, status=200, mimetype='application/json')
-        print(resp)
         
         logger.debug('Start Call to message')
         change_request_msg = "日時変更されたいですか？ はい - 1, いいえ - 2"
 
         msg = "お客様のお荷物の配送予定日時は"+delivery_date+"です。" + change_request_msg
-        print(session['from'])
+
+        logger.debug(session['from'])
         
         # response_SMS = client_sms.send_message({'from': sms_number, 'to': session['from'], 'text': sms_text,'type': 'unicode'})
         
@@ -131,10 +128,6 @@ def dtmfresponse():
         channel_type = "whatsapp"
         response_msg = send_msg_freeform(from_whatsapp, operator, msg, channel_type)
         
-        #response_SMS = client_sms.send_message({'from': 'NexmoJapan', 'to': operator, 'text': sms_text})
-        #logger.debug(response_wa)
-        
-        logger.debug(response_msg)
         ncco = [
             {
                 "action": "connect",
@@ -153,37 +146,41 @@ def dtmfresponse():
         js = json.dumps(ncco)
         resp = Response(js, status=200, mimetype='application/json')
         logger.debug('Response NCCO with Operator number')
-        print(resp)
         return resp
-    return "success"
+    return "OK"
 
 @app.route('/event', methods=['GET', 'POST', 'OPTIONS'])
 def display():
     r = request.json
-    print(r)
     return "OK"
-
 
 @app.route('/webhooks/inbound', methods=['POST'])
 def inbound_message():
-    print ("** inbound_message **")
+    logger.debug("** inbound_message **")
     data = request.get_json()
+ 
     input_msg = proc_inbound_msg(data['from']['type'], data)
-    print (input_msg)
-    
     if input_msg == '1':
         reschedule_menu = "希望の配達予定時間帯を指定してください。a-明日の午前中  b-明日の午後12時から18時　c-夜間18時から21時。d-オペレータとビデオ通話"
         
         channel_type = data['from']['type']
         if channel_type == "whatsapp":
             response_msg = send_msg_freeform (from_whatsapp, session['from'], reschedule_menu, channel_type)
-            logger.debug(reschedule_menu)
-        return
+        return("inbound_message", 200)
+
+    if input_msg == '2':
+        schedule_fixed = "かしこまりました。予定通りお届けいたします"
+            
+        channel_type = data['from']['type']
+        if channel_type == "whatsapp":
+            response_msg = send_msg_freeform (from_whatsapp, session['from'], schedule_fixed, channel_type)
+        return ("inbound_message", 200)
     
     if input_msg == 'a':
         rescheduled_time = "かしこまりました。お荷物は明日の午前中にお届けいたします。"
         channel_type = data['from']['type']
         response_msg = send_msg_freeform (from_whatsapp, session['from'], rescheduled_time, channel_type)
+            
     elif input_msg == 'b':
         rescheduled_time = "かしこまりました。明日の午後12時から18時にお届けいたします。"
         channel_type = data['from']['type']
@@ -197,52 +194,48 @@ def inbound_message():
         channel_type = data['from']['type']
         response_msg = send_msg_freeform (from_whatsapp, session['from'], connect_operator, channel_type)
         response_msg2 = send_msg_freeform (from_whatsapp, operator, session['from']+"のお客様からのお問い合わせです。　"+ video_url, channel_type)
-        
-        
-        logger.debug(response_msg)
-        logger.debug(response_msg2)
-        
         return ("inbound_message", 200)
-
+    return ("inbound_message", 200)
 
 @app.route('/webhooks/status', methods=['POST'])
 def message_status():
-    print ("** message_status **")
+    logger.debug("** message_status **")
     data = request.get_json()
-    pprint(data)
-    # pprint(data['error']['code'])
-    
-    if data['error']['code'] == 1340:     # Sent Outside Allowed Window
-        wa_optin = "https://wa.me/" + from_whatsapp + "?text=OPTIN"
-        sms_text = "WhatsAppにメッセージを送ってよろしければ、こちらのリンクをクリックしてください。 " + wa_optin
-        response_SMS = client_sms.send_message({'from': 'Nexmo', 'to': session['from'], 'type':'unicode','text': sms_text},)
-        print(response_SMS)
+
+    if "error" in data:
+        logger.debug(data)
+        if data['error']['code'] == 1340:     # Sent Outside Allowed Window
+            wa_optin = "https://wa.me/" + from_whatsapp + "?text=OPTIN"
+            sms_text = "WhatsAppにメッセージを送ってよろしければ、こちらのリンクをクリックしてWhatsAppでOPTINしてください。 " + wa_optin
+            response_SMS = client_sms.send_message({'from': 'Nexmo', 'to': session['from'], 'type':'unicode','text': sms_text},)
+            logger.debug(response_SMS)
+            return ("message_status", 200)
     return ("message_status", 200)
 
 @app.route('/webhooks/inbound-sms', methods=['POST'])
 def inbound_sms():
-    print ("** inbound_sms **")
+    logger.debug("** inbound_sms **")
     values = request.values
     proc_inbound_msg('sms', values)
     return ("inbound_sms", 200)
 
 @app.route('/webhooks/delivery-receipt', methods=['POST'])
 def delivery_receipt():
-    print ("** delivery_receipt **")
+    logger.debug("** delivery_receipt **")
     data = request.get_json()
-    pprint(data)
+    logger.debug(data)
     return ("delivery_receipt", 200)
-
-
 
 def send_msg_freeform(sender, recipient, text_msg, channel_type):
     
-    logger.debug('Send Message', channel_type)
+    logger.debug('Send Message')
+    logger.debug(channel_type)
+    logger.debug(text_msg)
+    
     expiry = 1*60*60 # JWT expires after one hour (default is 15 minutes)
     
     f = open(keyfile_msg, 'r')
     private_key_msg = f.read()
-    # logger.debug(private_key_msg)
     f.close()
     
    
