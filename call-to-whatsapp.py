@@ -31,8 +31,12 @@ api_secret = os.environ.get("API_SECRET")
 application_id = os.environ.get("APPLICATION_ID")
 msg_application_id = os.environ.get("MSG_APPLICATION_ID")
 
-keyfile = os.environ.get("KEYFILE")
-keyfile_msg = os.environ.get("KEYFILE_MSG")
+# keyfile = os.environ.get("KEYFILE")
+# keyfile_msg = os.environ.get("KEYFILE_MSG")
+
+private_key = os.environ.get("PRIVATE_KEY")
+private_key_msg = os.environ.get("PRIVATE_KEY_MSG")
+
 webhook_url = os.environ.get("WEBHOOK_URL")
 web_port = os.environ.get("WEB_PORT")
 virtual_number = os.environ.get("LVN")
@@ -54,7 +58,10 @@ url = "https://api.nexmo.com/v1/calls"
 session={}
 
 client_sms = nexmo.Client(key=api_key, secret=api_secret)
-client = nexmo.Client(application_id=application_id, private_key=keyfile)
+
+# client = nexmo.Client(application_id=application_id, private_key=keyfile)
+
+client = nexmo.Client(application_id=application_id, private_key=private_key)
 
 @app.route('/answer',methods=['GET', 'POST'])
 def answer():
@@ -235,9 +242,9 @@ def send_msg_freeform(sender, recipient, text_msg, channel_type):
     
     expiry = 1*60*60 # JWT expires after one hour (default is 15 minutes)
     
-    f = open(keyfile_msg, 'r')
-    private_key_msg = f.read()
-    f.close()
+#    f = open(keyfile_msg, 'r')
+#    private_key_msg = f.read()
+#    f.close()
     
    
     data_body = json.dumps({
