@@ -34,6 +34,7 @@ msg_application_id = os.environ.get("MSG_APPLICATION_ID")
 keyfile = os.environ.get("KEYFILE")
 keyfile_msg = os.environ.get("KEYFILE_MSG")
 webhook_url = os.environ.get("WEBHOOK_URL")
+web_port = os.environ.get("WEB_PORT")
 virtual_number = os.environ.get("LVN")
 
 from_sms = os.environ.get("FROM_SMS")
@@ -279,5 +280,5 @@ def send_msg_freeform(sender, recipient, text_msg, channel_type):
     
 
 if __name__ == '__main__':
-    app.run(port="3000")
+    app.run(port=web_port)
 
