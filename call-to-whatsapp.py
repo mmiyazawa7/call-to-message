@@ -56,8 +56,7 @@ coloredlogs.install(level='DEBUG', logger=logger)
 
 url = "https://api.nexmo.com/v1/calls"
 
-session[]={}
-
+session={}
 
 client_sms = nexmo.Client(key=api_key, secret=api_secret)
 
@@ -129,7 +128,7 @@ def dtmfresponse():
             logger.debug(send_to)
             channel_type = "whatsapp"
             response_msg = send_msg_freeform (from_whatsapp, send_to, msg, channel_type)
-        return resp
+            return resp
     
     elif result == '2':
         msg = "お客様からのお問い合わせです" + session['from'] + " on " + date
