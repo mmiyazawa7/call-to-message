@@ -22,6 +22,7 @@ from uuid import uuid4
 import os
 from os.path import join, dirname
 
+# for heroku, please put all env parameters to 'Config Vars` in heroku dashboard
 # from dotenv import load_dotenv
 # dotenv_path = join(dirname(__file__), '.env')
 # load_dotenv(dotenv_path)
@@ -209,13 +210,16 @@ def inbound_message():
 def message_status():
     logger.debug("** message_status **")
     data = request.get_json()
-
-    if "error" in data:
+    if "to" in data:
+        logger.debug(data)
+        send_to = data['to']['number']
+        channel_type = data['to']['type']
+    if "error" in data && channel_type = "whatsapp":
         logger.debug(data)
         if data['error']['code'] == 1340:     # Sent Outside Allowed Window
             wa_optin = "https://wa.me/" + from_whatsapp + "?text=OPTIN"
             sms_text = "WhatsAppにメッセージを送ってよろしければ、こちらのリンクをクリックしてWhatsAppでOPTINしてください。 " + wa_optin
-            response_SMS = client_sms.send_message({'from': 'Nexmo', 'to': session['from'], 'type':'unicode','text': sms_text},)
+            response_SMS = client_sms.send_message({'from': 'Nexmo', 'to': send_to, 'type':'unicode','text': sms_text},)
             logger.debug(response_SMS)
             return ("message_status", 200)
     return ("message_status", 200)
@@ -245,8 +249,7 @@ def send_msg_freeform(sender, recipient, text_msg, channel_type):
 #    f = open(keyfile_msg, 'r')
 #    private_key_msg = f.read()
 #    f.close()
-    
-   
+
     data_body = json.dumps({
            "from": {
                "type": channel_type,
