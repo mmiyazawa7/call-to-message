@@ -123,15 +123,16 @@ def dtmfresponse():
 
         msg = "お客様のお荷物の配送予定日時は"+delivery_date+"です。" + change_request_msg
 
-        logger.debug(session['from'])
-        
+        send_to = session['from']
+        logger.debug(send_to)
+
         # response_SMS = client_sms.send_message({'from': sms_number, 'to': session['from'], 'text': sms_text,'type': 'unicode'})
         
         channel_type = "whatsapp"
         
-        if channel_type == "whatsapp":
-            response_msg = send_msg_freeform (from_whatsapp, session['from'], msg, channel_type)
-            return resp
+        response_msg = send_msg_freeform (from_whatsapp, send_to, msg, channel_type)
+        return resp
+    
     elif result == '2':
         msg = "お客様からのお問い合わせです" + session['from'] + " on " + date
         channel_type = "whatsapp"
@@ -167,6 +168,9 @@ def display():
 def inbound_message():
     logger.debug("** inbound_message **")
     data = request.get_json()
+    
+    send_to = session['from']
+    logger.debug(send_to)
  
     input_msg = proc_inbound_msg(data['from']['type'], data)
     if input_msg == '1':
@@ -174,7 +178,7 @@ def inbound_message():
         
         channel_type = data['from']['type']
         if channel_type == "whatsapp":
-            response_msg = send_msg_freeform (from_whatsapp, session['from'], reschedule_menu, channel_type)
+            response_msg = send_msg_freeform (from_whatsapp, send_to, reschedule_menu, channel_type)
         return("inbound_message", 200)
 
     if input_msg == '2':
@@ -182,27 +186,27 @@ def inbound_message():
             
         channel_type = data['from']['type']
         if channel_type == "whatsapp":
-            response_msg = send_msg_freeform (from_whatsapp, session['from'], schedule_fixed, channel_type)
+            response_msg = send_msg_freeform (from_whatsapp, send_to, schedule_fixed, channel_type)
         return ("inbound_message", 200)
     
     if input_msg == 'a':
         rescheduled_time = "かしこまりました。お荷物は明日の午前中にお届けいたします。"
         channel_type = data['from']['type']
-        response_msg = send_msg_freeform (from_whatsapp, session['from'], rescheduled_time, channel_type)
+        response_msg = send_msg_freeform (from_whatsapp, send_to, rescheduled_time, channel_type)
             
     elif input_msg == 'b':
         rescheduled_time = "かしこまりました。明日の午後12時から18時にお届けいたします。"
         channel_type = data['from']['type']
-        response_msg = send_msg_freeform (from_whatsapp, session['from'], rescheduled_time, channel_type)
+        response_msg = send_msg_freeform (from_whatsapp, send_to, rescheduled_time, channel_type)
     elif input_msg == 'c':
         rescheduled_time = "かしこまりました。夜間18時から21時にお届けいたします。"
         channel_type = data['from']['type']
-        response_msg = send_msg_freeform (from_whatsapp, session['from'], rescheduled_time, channel_type)
+        response_msg = send_msg_freeform (from_whatsapp, send_to, rescheduled_time, channel_type)
     elif input_msg == 'd':
         connect_operator = "オペレータとビデオ通話するにはこちらのリンクをクリックしてください" + video_url
         channel_type = data['from']['type']
-        response_msg = send_msg_freeform (from_whatsapp, session['from'], connect_operator, channel_type)
-        response_msg2 = send_msg_freeform (from_whatsapp, operator, session['from']+"のお客様からのお問い合わせです。　"+ video_url, channel_type)
+        response_msg = send_msg_freeform (from_whatsapp, ssend_to, connect_operator, channel_type)
+        response_msg2 = send_msg_freeform (from_whatsapp, operator, session['from']+"のお客様からのお問い合わせです。　"+ video_url, channel_type) 
         return ("inbound_message", 200)
     return ("inbound_message", 200)
 
@@ -243,6 +247,7 @@ def send_msg_freeform(sender, recipient, text_msg, channel_type):
     logger.debug('Send Message')
     logger.debug(channel_type)
     logger.debug(text_msg)
+    logger.debug(recipient)
     
     expiry = 1*60*60 # JWT expires after one hour (default is 15 minutes)
     
