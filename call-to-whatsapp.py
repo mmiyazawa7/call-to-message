@@ -84,7 +84,7 @@ def answer():
 	      },
           {
             "action": "input",
-            "timeOut": "30",
+            "timeOut": "60",
             "submitOnHash": "true",
             "eventUrl": [webhook_url+"/dtmfresponse"]
             }]
@@ -123,15 +123,13 @@ def dtmfresponse():
 
         msg = "お客様のお荷物の配送予定日時は"+delivery_date+"です。" + change_request_msg
 
-        logger.debug(session['from'])
-        
-        # response_SMS = client_sms.send_message({'from': sms_number, 'to': session['from'], 'text': sms_text,'type': 'unicode'})
-        
-        channel_type = "whatsapp"
-        
-        if channel_type == "whatsapp":
-            response_msg = send_msg_freeform (from_whatsapp, session['from'], msg, channel_type)
-            return resp
+        if "from" in session:
+            send_to = session['from']
+            logger.debug(send_to)
+            channel_type = "whatsapp"
+            response_msg = send_msg_freeform (from_whatsapp, send_to, msg, channel_type)
+        return resp
+    
     elif result == '2':
         msg = "お客様からのお問い合わせです" + session['from'] + " on " + date
         channel_type = "whatsapp"
@@ -202,7 +200,7 @@ def inbound_message():
         connect_operator = "オペレータとビデオ通話するにはこちらのリンクをクリックしてください" + video_url
         channel_type = data['from']['type']
         response_msg = send_msg_freeform (from_whatsapp, session['from'], connect_operator, channel_type)
-        response_msg2 = send_msg_freeform (from_whatsapp, operator, session['from']+"のお客様からのお問い合わせです。　"+ video_url, channel_type)
+        response_msg2 = send_msg_freeform (from_whatsapp, operator, session['from']+"のお客様からのお問い合わせです。　"+ video_url, channel_type) 
         return ("inbound_message", 200)
     return ("inbound_message", 200)
 
@@ -214,7 +212,7 @@ def message_status():
         logger.debug(data)
         send_to = data['to']['number']
         channel_type = data['to']['type']
-    if "error" in data & channel_type == "whatsapp":
+    if "error" in data:
         logger.debug(data)
         if data['error']['code'] == 1340:     # Sent Outside Allowed Window
             wa_optin = "https://wa.me/" + from_whatsapp + "?text=OPTIN"
@@ -243,6 +241,7 @@ def send_msg_freeform(sender, recipient, text_msg, channel_type):
     logger.debug('Send Message')
     logger.debug(channel_type)
     logger.debug(text_msg)
+    logger.debug(recipient)
     
     expiry = 1*60*60 # JWT expires after one hour (default is 15 minutes)
     
