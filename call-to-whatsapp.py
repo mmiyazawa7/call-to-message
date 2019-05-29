@@ -69,11 +69,11 @@ client = nexmo.Client(application_id=application_id, private_key=private_key)
 @app.route('/answer',methods=['GET', 'POST'])
 def answer():
 
-    arg_to = request.args['to']
-    arg_from = request.args['from']
+    session['to'] = request.args['to']
+    session['from'] = request.args['from']
 
-    session['to'] = arg_to
-    session['from'] = arg_from
+    # session['to'] = arg_to
+    # session['from'] = arg_from
 
     logger.debug('From: %s', arg_from)
     logger.debug('To: %s', arg_to)
