@@ -75,8 +75,8 @@ def answer():
     # session['to'] = arg_to
     # session['from'] = arg_from
 
-    logger.debug('From: %s', arg_from)
-    logger.debug('To: %s', arg_to)
+    logger.debug('From: %s', session['from'])
+    logger.debug('To: %s', session['to'])
 
     ncco=[{
 	        "action": "talk",
