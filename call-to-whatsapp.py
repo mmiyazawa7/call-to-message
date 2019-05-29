@@ -84,7 +84,7 @@ def answer():
 	      },
           {
             "action": "input",
-            "timeOut": "30",
+            "timeOut": "60",
             "submitOnHash": "true",
             "eventUrl": [webhook_url+"/dtmfresponse"]
             }]
