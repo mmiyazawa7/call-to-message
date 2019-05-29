@@ -90,6 +90,7 @@ def answer():
 @app.route('/dtmfresponse',methods=['GET', 'POST'])
 def dtmfresponse():
 
+    global session
     currentDT = datetime.datetime.now()
     date =currentDT.strftime("%Y-%m-%d %H:%M:%S")
 
@@ -118,13 +119,11 @@ def dtmfresponse():
 
         msg = "お客様のお荷物の配送予定日時は"+delivery_date+"です。" + change_request_msg
 
-        if "from" in session:
-            send_to = session['from']
-            logger.debug(send_to)
-            channel_type = "whatsapp"
-            response_msg = send_msg_freeform (from_whatsapp, send_to, msg, channel_type)
-            return resp
-    
+        send_to = session['from']
+        logger.debug(send_to)
+        channel_type = "whatsapp"
+        response_msg = send_msg_freeform (from_whatsapp, send_to, msg, channel_type)
+        return resp
     elif result == '2':
         msg = "お客様からのお問い合わせです" + session['from'] + " on " + date
         channel_type = "whatsapp"
