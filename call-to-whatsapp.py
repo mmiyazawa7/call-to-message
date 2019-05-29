@@ -214,7 +214,7 @@ def message_status():
         logger.debug(data)
         send_to = data['to']['number']
         channel_type = data['to']['type']
-    if "error" in data && channel_type = "whatsapp":
+    if "error" in data & channel_type == "whatsapp":
         logger.debug(data)
         if data['error']['code'] == 1340:     # Sent Outside Allowed Window
             wa_optin = "https://wa.me/" + from_whatsapp + "?text=OPTIN"
