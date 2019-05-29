@@ -123,8 +123,9 @@ def dtmfresponse():
 
         msg = "お客様のお荷物の配送予定日時は"+delivery_date+"です。" + change_request_msg
 
-        send_to = session['from']
-        logger.debug(send_to)
+        if "from" in session:
+            send_to = session['from']
+            logger.debug(send_to)
 
         # response_SMS = client_sms.send_message({'from': sms_number, 'to': session['from'], 'text': sms_text,'type': 'unicode'})
         
@@ -168,9 +169,9 @@ def display():
 def inbound_message():
     logger.debug("** inbound_message **")
     data = request.get_json()
-    
-    send_to = session['from']
-    logger.debug(send_to)
+    if "from" in session:
+        send_to = session['from']
+        logger.debug(send_to)
  
     input_msg = proc_inbound_msg(data['from']['type'], data)
     if input_msg == '1':
