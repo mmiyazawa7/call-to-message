@@ -59,19 +59,14 @@ url = "https://api.nexmo.com/v1/calls"
 session={}
 
 client_sms = nexmo.Client(key=api_key, secret=api_secret)
-
-# client = nexmo.Client(application_id=application_id, private_key=keyfile)
-
 client = nexmo.Client(application_id=application_id, private_key=private_key)
 
 @app.route('/answer',methods=['GET', 'POST'])
 def answer():
 
+    global session
     session['to'] = request.args['to']
     session['from'] = request.args['from']
-
-    # session['to'] = arg_to
-    # session['from'] = arg_from
 
     logger.debug('From: %s', session['from'])
     logger.debug('To: %s', session['to'])
