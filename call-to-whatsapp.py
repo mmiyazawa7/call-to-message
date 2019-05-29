@@ -171,6 +171,9 @@ def inbound_message():
         reschedule_menu = "希望の配達予定時間帯を指定してください。a-明日の午前中  b-明日の午後12時から18時　c-夜間18時から21時。d-オペレータとビデオ通話"
         
         channel_type = data['from']['type']
+        
+        logger.debug(data['from']['number'])
+        print("from number whats app")
         if channel_type == "whatsapp":
             response_msg = send_msg_freeform (from_whatsapp, session['from'], reschedule_menu, channel_type)
         return("inbound_message", 200)
