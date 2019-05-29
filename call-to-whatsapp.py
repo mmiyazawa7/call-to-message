@@ -56,7 +56,7 @@ coloredlogs.install(level='DEBUG', logger=logger)
 
 url = "https://api.nexmo.com/v1/calls"
 
-session={}
+session = {}
 
 client_sms = nexmo.Client(key=api_key, secret=api_secret)
 client = nexmo.Client(application_id=application_id, private_key=private_key)
@@ -64,7 +64,7 @@ client = nexmo.Client(application_id=application_id, private_key=private_key)
 @app.route('/answer',methods=['GET', 'POST'])
 def answer():
 
-    global session
+    global session = {}
     session['to'] = request.args['to']
     session['from'] = request.args['from']
 
