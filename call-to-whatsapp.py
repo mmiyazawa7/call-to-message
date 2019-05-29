@@ -56,9 +56,8 @@ coloredlogs.install(level='DEBUG', logger=logger)
 
 url = "https://api.nexmo.com/v1/calls"
 
-session={}
-session['to']=""
-session['from']=""
+session[]={}
+
 
 client_sms = nexmo.Client(key=api_key, secret=api_secret)
 
