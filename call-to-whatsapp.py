@@ -126,12 +126,8 @@ def dtmfresponse():
         if "from" in session:
             send_to = session['from']
             logger.debug(send_to)
-
-        # response_SMS = client_sms.send_message({'from': sms_number, 'to': session['from'], 'text': sms_text,'type': 'unicode'})
-        
-        channel_type = "whatsapp"
-        
-        response_msg = send_msg_freeform (from_whatsapp, send_to, msg, channel_type)
+            channel_type = "whatsapp"
+            response_msg = send_msg_freeform (from_whatsapp, send_to, msg, channel_type)
         return resp
     
     elif result == '2':
