@@ -193,7 +193,7 @@ def inbound_message():
         channel_type = data['from']['type']
         response_msg = send_msg_freeform (from_whatsapp, data['from']['number'], rescheduled_time, channel_type)
     elif input_msg == 'd':
-        connect_operator =　"オペレータとビデオ通話するにはこちらのリンクをクリックしてください。"+video_url
+        connect_operator = "オペレータとビデオ通話するにはこちらのリンクをクリックしてください。　" + video_url
         channel_type = data['from']['type']
         response_msg = send_msg_freeform (from_whatsapp, data['from']['number'], connect_operator, channel_type)
         response_msg2 = send_msg_freeform (from_whatsapp, operator, data['from']['number']+"のお客様からのお問い合わせです。　"+ video_url, channel_type) 
