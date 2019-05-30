@@ -216,6 +216,12 @@ def message_status():
             response_SMS = client_sms.send_message({'from': 'Nexmo', 'to': send_to, 'type':'unicode','text': sms_text},)
             logger.debug(response_SMS)
             return ("message_status", 200)
+        elif data['error']['code'] == 1300:   # Not part of the provider network
+            wa_install = "https://whatsapp.com/dl"
+            sms_text = "今後WhatsAppにメッセージを送信しますので、こちらのリンクをクリックしてWhatsAppをインストールしてください。" + wa_install
+            response_SMS = client_sms.send_message({'from': 'Nexmo', 'to': send_to, 'type':'unicode','text': sms_text},)
+            logger.debug(response_SMS)            
+            return ("message_status", 200)
     return ("message_status", 200)
 
 @app.route('/webhooks/inbound-sms', methods=['POST'])
